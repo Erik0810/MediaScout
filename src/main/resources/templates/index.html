@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediaScout - Find Your Lost Media</title>
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.1/nouislider.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="main-container">
+        <div class="left-panel">
+            <div class="header-section">
+                <h1>MediaScout</h1>
+                <p class="intro-text">
+                    Trying to find that movie from your childhood? That catchy song you can't remember? 
+                    Or that book that's been on the tip of your tongue? MediaScout helps you rediscover 
+                    lost media from your past using AI-powered suggestions.
+                </p>
+            </div>
+
+            <div class="form-section">
+                <form id="mediaForm">
+                    <div class="mb-4">
+                        <label class="form-label">Time Period</label>
+                        <div class="slider-container">
+                            <div id="timeSlider"></div>
+                            <div class="time-labels">
+                                <span id="timeStart">1900</span>
+                                <span id="timeEnd">2020</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label">Type of Media</label>
+                        <div class="media-icons">
+                            <div class="media-icon" data-value="movie" title="Movie">
+                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect>
+                                    <line x1="7" y1="2" x2="7" y2="22"></line>
+                                    <line x1="17" y1="2" x2="17" y2="22"></line>
+                                    <line x1="2" y1="12" x2="22" y2="12"></line>
+                                </svg>
+                            </div>
+                            <div class="media-icon" data-value="book" title="Book">
+                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                                </svg>
+                            </div>
+                            <div class="media-icon" data-value="music" title="Music">
+                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M9 18V5l12-2v13"></path>
+                                    <circle cx="6" cy="18" r="3"></circle>
+                                    <circle cx="18" cy="16" r="3"></circle>
+                                </svg>
+                            </div>
+                            <div class="media-icon" data-value="tv-show" title="TV Show">
+                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect>
+                                    <polyline points="17 2 12 7 7 2"></polyline>
+                                </svg>
+                            </div>
+                            <div class="media-icon" data-value="game" title="Game">
+                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="2" y="4" width="20" height="16" rx="2" ry="2"></rect>
+                                    <circle cx="7" cy="12" r="2"></circle>
+                                    <circle cx="17" cy="12" r="2"></circle>
+                                    <path d="M17 8l-3-4-4 4"></path>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="additionalInfo" class="form-label">What do you remember?</label>
+                        <textarea class="form-control" id="additionalInfo" rows="3" 
+                            placeholder="Share any details you remember: themes, scenes, characters, or how it made you feel..."></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100">Find My Media</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="right-panel">
+            <div id="results">
+                <p class="placeholder-text">Your discovered media will appear here...</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.1/nouislider.min.js"></script>
+
+    <script>
+        // Initialize the slider
+        const slider = document.getElementById('timeSlider');
+        noUiSlider.create(slider, {
+            start: [1900, 2020],
+            connect: true,
+            step: 10,
+            range: {
+                'min': 1900,
+                'max': 2020
+            }
+        });
+
+        // Update the time labels
+        slider.noUiSlider.on('update', function (values) {
+            document.getElementById('timeStart').textContent = Math.round(values[0]);
+            document.getElementById('timeEnd').textContent = Math.round(values[1]);
+        });
+
+        // Handle media icon selection
+        const mediaIcons = document.querySelectorAll('.media-icon');
+        let selectedMedia = null;
+
+        mediaIcons.forEach(icon => {
+            icon.addEventListener('click', function() {
+                mediaIcons.forEach(i => i.classList.remove('selected'));
+                this.classList.add('selected');
+                selectedMedia = this.dataset.value;
+            });
+        });
+
+        // Handle form submission
+        document.getElementById('mediaForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            if (!selectedMedia) {
+                alert('Please select a media type');
+                return;
+            }
+
+            const timeValues = slider.noUiSlider.get();
+            const timePeriod = `${Math.round(timeValues[0])}s-${Math.round(timeValues[1])}s`;
+            const additionalInfo = document.getElementById('additionalInfo').value;
+
+            // Show loading state
+            document.getElementById('results').innerHTML = '<p class="placeholder-text">Searching for your media...</p>';
+
+            fetch('/getResult', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    timePeriod: timePeriod,
+                    mediaType: selectedMedia,
+                    additionalInfo: additionalInfo
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    document.getElementById('results').innerHTML = `<p class="placeholder-text">${data.error}</p>`;
+                } else {
+                    const resultHtml = `
+                        <h3>${data.title}</h3>
+                        ${data.imageUrl ? `<img src="${data.imageUrl}" alt="${data.title}" />` : ''}
+                    `;
+                    document.getElementById('results').innerHTML = resultHtml;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('results').innerHTML = '<p class="placeholder-text">Error: Unable to fetch media suggestions.</p>';
+            });
+        });
+    </script>
+</body>
+</html>
