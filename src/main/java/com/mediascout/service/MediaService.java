@@ -34,13 +34,13 @@ public class MediaService {
     private final RestTemplate restTemplate = new RestTemplate();
 
     public String getMediaSuggestion(String mediaType, String timePeriod, String additionalInfo) {
-        String userPrompt = String.format("Suggest %s from the %s with the following details: %s", 
+        String userPrompt = String.format("Find the %s im thinking of from the %s with the following details: %s", 
                                             mediaType, timePeriod, additionalInfo);
 
         Map<String, Object> openaiRequest = new HashMap<>();
         openaiRequest.put("model", "gpt-4-turbo-preview");
         openaiRequest.put("messages", List.of(
-                Map.of("role", "system", "content", "You are a helpful assistant that suggests media (movies, books, music, etc.). Only provide the title."),
+                Map.of("role", "system", "content", "You are a helpful assistant that find the media a user is thinking of (movies, books, music, etc.). Only provide the title."),
                 Map.of("role", "user", "content", userPrompt)
         ));
         openaiRequest.put("max_tokens", 150);
